@@ -7,6 +7,37 @@ window.onload = function() {
     setGame();
 }
 
+const restartBtn = document.getElementById('restartBtn');
+
+restartBtn.addEventListener('click', () => {
+    resetGame();
+    startGame();
+});
+
+function resetGame() {
+    clearInterval(moleTimer); // or clearTimeout depending on your implementation
+    score = 0;
+    timeLeft = 60; // or whatever the starting time is
+    updateScoreDisplay();
+    updateTimeDisplay();
+    clearMoles(); // optional: remove mole appearances
+}
+
+// Helper functions:
+function updateScoreDisplay() {
+    document.getElementById('score').textContent = score;
+}
+
+function updateTimeDisplay() {
+    document.getElementById('time-left').textContent = timeLeft;
+}
+
+function clearMoles() {
+    // remove mole classes from all squares
+    squares.forEach(square => square.classList.remove('mole'));
+}
+
+
 function setGame() {
     //set up the grid in html
     for (let i = 0; i < 9; i++) { //i goes from 0 to 8, stops at 9
