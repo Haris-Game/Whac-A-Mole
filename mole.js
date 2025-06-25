@@ -148,11 +148,23 @@ function updateLevelDisplay() {
 }
 
 function restartGame() {
+    clearInterval(moleInterval);
+    clearInterval(plantInterval);
+    clearInterval(timeInterval);
+
+    // Reset everything
     score = 0;
     level = 1;
     timeLeft = 15;
     gameOver = false;
-    document.getElementById("score").innerText = "0";
+
+    document.getElementById("score").innerText = score.toString();
+    document.getElementById("level").innerText = level.toString();
+    document.getElementById("timeLeft").innerText = timeLeft.toString();
+
     resetBoard();
     startLevel();
 }
+
+document.getElementById("restartBtn").addEventListener("click", restartGame);
+
