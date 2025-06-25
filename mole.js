@@ -3,94 +3,147 @@ let currPlantTile;
 let score = 0;
 let gameOver = false;
 
-window.onload = function() {
+let level = 1;
+let maxLevel = 10;
+let timeLeft = 15;
+let timeInterval;
+let moleInterval;
+let plantInterval;
+
+window.onload = function () {
     setGame();
 }
 
 function setGame() {
-    //set up the grid in html
-    for (let i = 0; i < 9; i++) { //i goes from 0 to 8, stops at 9
-        //<div id="0-8"></div>
+    for (let i = 0; i < 9; i++) {
         let tile = document.createElement("div");
         tile.id = i.toString();
         tile.addEventListener("click", selectTile);
         document.getElementById("board").appendChild(tile);
     }
-    setInterval(setMole, 1000); // 1000 miliseconds = 1 second, every 1 second call setMole
-    setInterval(setPlant, 2000); // 2000 miliseconds = 2 seconds, every 2 second call setPlant
+    startLevel();
+}
+
+function startLevel() {
+    timeLeft = 15;
+    updateLevelDisplay();
+    resetBoard();
+    setTimers();
+    startTimer();
+}
+
+function resetBoard() {
+    for (let i = 0; i < 9; i++) {
+        let tile = document.getElementById(i.toString());
+        tile.innerHTML = "";
+    }
+    currMoleTile = null;
+    currPlantTile = null;
+}
+
+function setTimers() {
+    clearInterval(moleInterval);
+    clearInterval(plantInterval);
+
+    moleInterval = setInterval(setMole, 1000);
+    plantInterval = setInterval(setPlant, 2000);
 }
 
 function getRandomTile() {
-    //math.random --> 0-1 --> (0-1) * 9 = (0-9) --> round down to (0-8) integers
-    let num = Math.floor(Math.random() * 9);
-    return num.toString();
+    return Math.floor(Math.random() * 9).toString();
 }
 
 function setMole() {
-    if (gameOver) {
-        return;
-    }
-    if (currMoleTile) {
-        currMoleTile.innerHTML = "";
-    }
+    if (gameOver) return;
+    if (currMoleTile) currMoleTile.innerHTML = "";
+
     let mole = document.createElement("img");
     mole.src = "./monty-mole.png";
 
     let num = getRandomTile();
-    if (currPlantTile && currPlantTile.id == num) {
-        return;
-    }
+    if (currPlantTile && currPlantTile.id == num) return;
+
     currMoleTile = document.getElementById(num);
     currMoleTile.appendChild(mole);
 }
 
 function setPlant() {
-    if (gameOver) {
-        return;
-    }
-    if (currPlantTile) {
-        currPlantTile.innerHTML = "";
-    }
+    if (gameOver) return;
+    if (currPlantTile) currPlantTile.innerHTML = "";
+
     let plant = document.createElement("img");
     plant.src = "./piranha-plant.png";
 
     let num = getRandomTile();
-    if (currMoleTile && currMoleTile.id == num) {
-        return;
-    }
+    if (currMoleTile && currMoleTile.id == num) return;
+
     currPlantTile = document.getElementById(num);
     currPlantTile.appendChild(plant);
 }
 
 function selectTile() {
-    if (gameOver) {
-        return;
-    }
+    if (gameOver) return;
+
     if (this == currMoleTile) {
-        score += 10;
-        document.getElementById("score").innerText = score.toString(); //update score html
+        score += 1;
+        document.getElementById("score").innerText = score.toString();
+        checkLevelUp();
+    } else if (this == currPlantTile) {
+        endGame("GAME OVER: " + score.toString());
     }
-    else if (this == currPlantTile) {
-        document.getElementById("score").innerText = "GAME OVER: " + score.toString(); //update score html
-        gameOver = true;
+}
+
+function checkLevelUp() {
+    let targetScore = 5 * level;
+    if (score >= targetScore) {
+        clearInterval(timeInterval);
+        clearInterval(moleInterval);
+        clearInterval(plantInterval);
+        if (level >= maxLevel) {
+            endGame("🎉 YOU WIN! Final Score: " + score);
+        } else {
+            level++;
+            score = 0;
+            document.getElementById("score").innerText = score.toString();
+            timeLeft = 15;
+            setTimeout(startLevel, 1000);
+        }
     }
+}
+
+
+function startTimer() {
+    document.getElementById("timeLeft").innerText = timeLeft;
+    timeInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timeLeft").innerText = timeLeft;
+        if (timeLeft <= 0) {
+            endGame("⏰ TIME'S UP! Final Score: " + score);
+        }
+    }, 1000);
+}
+
+function endGame(message) {
+    gameOver = true;
+    clearInterval(moleInterval);
+    clearInterval(plantInterval);
+    clearInterval(timeInterval);
+    document.getElementById("score").innerText = message;
 }
 
 document.getElementById("restartBtn").addEventListener("click", restartGame);
 
 function restartGame() {
-    // Clear current tiles
-    for (let i = 0; i < 9; i++) {
-        let tile = document.getElementById(i.toString());
-        tile.innerHTML = "";
-    }
-
-    // Reset variables
     score = 0;
+    level = 1;
+    timeLeft = 15;
     gameOver = false;
-    document.getElementById("score").innerText = score.toString();
+    document.getElementById("score").innerText = "0";
+    resetBoard();
+    startLevel();
+}
 
-    // Restart mole and plant
-    currMoleTile = null;
-    currPlantTile = null;
+
+function updateLevelDisplay() {
+    document.getElementById("level").innerText = level;
 }
