@@ -143,7 +143,16 @@ function restartGame() {
     startLevel();
 }
 
-
 function updateLevelDisplay() {
     document.getElementById("level").innerText = level;
+}
+
+function restartGame() {
+    score = 0;
+    level = 1;
+    timeLeft = 15;
+    gameOver = false;
+    document.getElementById("score").innerText = "0";
+    resetBoard();
+    startLevel();
 }
