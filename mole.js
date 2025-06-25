@@ -131,7 +131,6 @@ function endGame(message) {
     document.getElementById("score").innerText = message;
 }
 
-document.getElementById("restartBtn").addEventListener("click", restartGame);
 
 function restartGame() {
     clearInterval(moleInterval);
